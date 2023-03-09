@@ -8,14 +8,14 @@ class MyModel:
 
     def assemble_model(self):
         #input layer
-        input_shape = (10, 10, 2) #can be basically any amount of dimensions
+        input_shape = (64, 64, 2) #can be basically any amount of dimensions
         inputs = Input((input_shape))
 
         #hidden layers
         hidden_layers = self.hidden_layers(inputs)
 
         #output layer
-        outputs = Dense(3, activation="tanh", name="output")(hidden_layers)
+        outputs = self.Convolution(hidden_layers, 128, name="output")
 
         #compile
         model = Model(inputs=[inputs], output=[outputs])
@@ -25,25 +25,22 @@ class MyModel:
     
 
     #Convolution for CNN (convolution neural network)
-    def Convolution(input_tensor, filters, kernel_size=(3, 3), pool_size=(2, 2), strides=(1, 1)):
+    def Convolution(input_tensor, filters, kernel_size=(3, 3), pool_size=(2, 2), strides=(1, 1), name=""):
         
         x = Conv2D(filters, kernel_size, padding="same", strides=strides, kernel_regularizer=l2(0.001))(input_tensor)
         x = Dropout(0.1)(x)
-        x = MaxPooling2D(pool_size=pool_size)(x)
+        if name:
+            x = MaxPooling2D(pool_size=pool_size, name=name)(x)
+        else:
+            x = MaxPooling2D(pool_size=pool_size)(x)
 
         return x
 
     def hidden_layers(self, inputs):
         #hidden layers
-        x = self.Convolution(inputs, 128)
+        x = self.Convolution(inputs, 64)
         x = self.Convolution(x, 86)
-
-        x = Flatten()(x)
-
-        x = Dense(128, activation="relu")(x)
-        x = Dropout(0.15)(x)
-        x = Dense(8, activation="sigmoid")(x)
-        x = Dropout(0.15)(x)
+        x = self.Convolution(x, 128)
 
         return x
 
