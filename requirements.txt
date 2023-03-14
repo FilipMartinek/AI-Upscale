@@ -1,0 +1,7 @@
+tensorflow
+pickle 
+matplotlib
+numpy
+selenium
+Pillow
+requests

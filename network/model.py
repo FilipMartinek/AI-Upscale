@@ -15,22 +15,21 @@ class MyModel:
         hidden_layers = self.hidden_layers(inputs)
 
         #output layer
-        x = Conv2DTranspose(1, (5, 5), padding="same", use_bias=False, activation="tanh")(inputs)
-        output = Reshape((64, 64, 3))
+        output = Conv2DTranspose(3, (5, 5), padding="same", use_bias=False, activation="tanh")(hidden_layers)
+        
 
         #compile
         model = Model(inputs=[inputs], outputs=[output])
-        model.compile(optimizers="Adam", loss=["binary_crossentropy"], metrics={"output":"accuracy"})
+        model.compile(optimizer="Adam", loss=["binary_crossentropy"], metrics={"output":"accuracy"})
 
         return model
     
 
     #Convolution for CNN (convolution neural network)
-    def Convolution(input_tensor, filters, kernel_size=(5, 5), pool_size=(2, 2), strides=(1, 1), name=""):
+    def Convolution(self, input_tensor, filters, kernel_size=(5, 5), pool_size=(2, 2), strides=(1, 1), name=""):
         
-        print(f"---------------input_tensor: {input_tensor}, filters: {filters}")
         x = Conv2DTranspose(filters, kernel_size, padding="same", strides=strides, use_bias=False)(input_tensor)
-        x = Dropout(0.1)(x) 
+        x = Dropout(0.1)(x)
         x = BatchNormalization()(x)
         if name:
             x = LeakyReLU(name=name)(x)
@@ -39,12 +38,13 @@ class MyModel:
 
         return x
 
+    #hidden layers
     def hidden_layers(self, input):
-        #hidden layers
-        print(f"---------------input_tensor: {input}, filters: {64}")
-        x = self.Convolution(input_tensor=input, filters=64)
-        x = self.Convolution(input_tensor=x, filters=86)
-        x = self.Convolution(input_tensor=x, filters=108)
+        
+        x = self.Convolution(input, 128)
+        x = self.Convolution(x, 86)
+        x = self.Convolution(x, 64)
+        x = Reshape((128, 128, 16))(x)
 
         return x
 
@@ -63,5 +63,4 @@ def get_models():
 if __name__ == "__main__":
 
     for model in get_models():
-        model = model[0]
         model.summary()
