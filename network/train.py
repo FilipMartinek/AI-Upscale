@@ -112,11 +112,11 @@ def thread(models, gpu, data_len):
                 #get model data
                 print(model_data)
                 Model = model_data
-                input_train, input_test, output_train, output_test = init_dataset.get_data(data_len)
+                input_train, input_test, output_train, output_test = init_dataset.get_data(data_len=data_len, ow=True)
 
                 #train, save, and evaluate model
                 train(Model, input_train, input_test, output_train, output_test, f"model{i}")
-                Model.save(f"determine_face/models/model{i}.h5")
+                Model.save(f"{filedir}/model{i}.h5")
                 Model.evaluate(input_test,output_test)
 
 #if program is ran

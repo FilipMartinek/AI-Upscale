@@ -3,6 +3,7 @@ from tensorflow import keras
 from keras.layers import BatchNormalization, LeakyReLU, Conv2DTranspose, Dropout, Reshape, Input
 from keras.models import Model
 # from tensorflow.keras.regularizers import l2
+from keras.metrics import Precision
 
 class MyModel:
 
@@ -15,12 +16,12 @@ class MyModel:
         hidden_layers = self.hidden_layers(inputs)
 
         #output layer
-        output = Conv2DTranspose(3, (5, 5), padding="same", use_bias=False, activation="tanh")(hidden_layers)
+        output = Conv2DTranspose(3, (5, 5), padding="same", use_bias=False, activation="sigmoid", name="output")(hidden_layers)
         
 
         #compile
         model = Model(inputs=[inputs], outputs=[output])
-        model.compile(optimizer="Adam", loss=["binary_crossentropy"], metrics={"output":"accuracy"})
+        model.compile(optimizer="Adam", loss="mse", metrics=Precision())
 
         return model
     
@@ -41,8 +42,10 @@ class MyModel:
     #hidden layers
     def hidden_layers(self, input):
         
-        x = self.Convolution(input, 128)
-        x = self.Convolution(x, 86)
+        x = self.Convolution(input, 6)
+        x = self.Convolution(x, 12)
+        x = self.Convolution(x, 24)
+        x = self.Convolution(x, 32)
         x = self.Convolution(x, 64)
         x = Reshape((128, 128, 16))(x)
 
