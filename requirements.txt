@@ -5,3 +5,4 @@ numpy
 selenium
 Pillow
 requests
+npy-append-array

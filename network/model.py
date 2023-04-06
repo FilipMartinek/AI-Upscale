@@ -1,6 +1,6 @@
 # from sklearn import metrics
 from tensorflow import keras
-from keras.layers import BatchNormalization, LeakyReLU, Conv2DTranspose, Dropout, Reshape, Input
+from keras.layers import LeakyReLU, Conv2DTranspose, Conv2D, MaxPool2D, Reshape, Input, Dropout, UpSampling2D
 from keras.models import Model
 # from tensorflow.keras.regularizers import l2
 from keras.metrics import Precision
@@ -16,12 +16,12 @@ class MyModel:
         hidden_layers = self.hidden_layers(inputs)
 
         #output layer
-        output = Conv2DTranspose(3, (5, 5), padding="same", use_bias=False, activation="sigmoid", name="output")(hidden_layers)
+        output = Reshape((128, 128, 3))(hidden_layers)
         
 
         #compile
         model = Model(inputs=[inputs], outputs=[output])
-        model.compile(optimizer="Adam", loss="mse", metrics=Precision())
+        model.compile(optimizer="Adam", loss="mse")
 
         return model
     
@@ -29,25 +29,23 @@ class MyModel:
     #Convolution for CNN (convolution neural network)
     def Convolution(self, input_tensor, filters, kernel_size=(5, 5), pool_size=(2, 2), strides=(1, 1), name=""):
         
-        x = Conv2DTranspose(filters, kernel_size, padding="same", strides=strides, use_bias=False)(input_tensor)
+        x = Conv2D(filters, kernel_size, padding="same", strides=strides, use_bias=False)(input_tensor)
         x = Dropout(0.1)(x)
-        x = BatchNormalization()(x)
         if name:
-            x = LeakyReLU(name=name)(x)
+             x = MaxPool2D(pool_size, name=name)(x)
         else:
-            x = LeakyReLU()(x)
+             x = MaxPool2D(pool_size)(x)
 
         return x
 
     #hidden layers
     def hidden_layers(self, input):
-        
-        x = self.Convolution(input, 6)
-        x = self.Convolution(x, 12)
-        x = self.Convolution(x, 24)
-        x = self.Convolution(x, 32)
-        x = self.Convolution(x, 64)
-        x = Reshape((128, 128, 16))(x)
+
+        x = UpSampling2D((2, 2))(input)
+        x = UpSampling2D((2, 2))(x)
+        x = UpSampling2D((2, 2))(x)
+        x = self.Convolution(x, 9)
+        x = self.Convolution(x, 3)
 
         return x
 

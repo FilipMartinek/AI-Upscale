@@ -48,7 +48,7 @@ def train(Model, input_train, input_test, output_train, output_test, filename):
 
 def get_paramaters():
     #default parameters
-    MAXLEN = 5000
+    MAXLEN = 50000
     MULTIPLE_GPUS = False
     GPUNUM = "-1"
     MODEL_NUM = -1
