@@ -99,8 +99,12 @@ class GAN(Model):
 
 
     #loss functions
-    def gen_loss(self, gen_out):
-        loss = self.loss(tf.zeros_like(gen_out), gen_out)
+    def gen_loss(self, disc_out_gen, data_in, gen_out):
+        loss = self.loss(tf.zeros_like(disc_out_gen), disc_out_gen)
+        
+        data_in_slice = data_in[:, :, :, :]
+        gen_out_slice = tf.keras.layers.Average()([gen_out[:, 0:128:2, 0:128:2, :], gen_out[:, 1:128:2, 0:128:2, :], gen_out[:, 0:128:2, 1:128:2, :], gen_out[:, 1:128:2, 1:128:2, :]]) #downscale upscaled image
+        loss += self.loss(data_in_slice, gen_out_slice) # for color accuracy (checks pixel colors for every pixel)
         return loss
     
     def disc_loss(self, real_out, gen_out):
@@ -132,7 +136,7 @@ class GAN(Model):
             #generator
             gen_pred = self.generator(data_in, training=True)
             disc_pred = self.discriminator(gen_pred, training=False)
-            generator_loss = self.gen_loss(disc_pred)
+            generator_loss = self.gen_loss(disc_pred, data_in, gen_pred)
         
         #calculate and apply gradient to network parameters
         disc_trainable_vars = self.discriminator.trainable_variables

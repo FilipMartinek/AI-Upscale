@@ -142,6 +142,7 @@ def get_images(url, delay=1):
     width, height = image.size
     add = 0
 
+    #split images into tiles, which will be resized and saved to the input and output img lists
     for x in range(0, width - 128, 128):
         for y in range(0, height - 128, 128):
             output_img = image.crop((x, y, x + 128, y + 128))
