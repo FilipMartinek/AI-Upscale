@@ -104,7 +104,8 @@ class GAN(Model):
         
         data_in_slice = data_in[:, :, :, :]
         gen_out_slice = tf.keras.layers.Average()([gen_out[:, 0:128:2, 0:128:2, :], gen_out[:, 1:128:2, 0:128:2, :], gen_out[:, 0:128:2, 1:128:2, :], gen_out[:, 1:128:2, 1:128:2, :]]) #downscale upscaled image
-        loss += self.loss(data_in_slice, gen_out_slice) * 10 # for color accuracy (checks pixel colors for every pixel), multiplied to add emphasis
+        loss2 = self.loss(data_in_slice, gen_out_slice) # for color accuracy (checks pixel colors for every pixel), multiplied to add emphasis
+        loss = tf.stack([loss, loss2], axis=0)
         return loss
     
     def disc_loss(self, real_out, gen_out):
