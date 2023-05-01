@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split
+from tensorflow.data import Dataset
 from npy_append_array import NpyAppendArray
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -13,9 +13,6 @@ import io
 
 #initialize dir variables
 filedir = os.getcwd()
-
-def init_dataset():
-    pass
 
 def get_data(data_len=5000, ow=False):
 
@@ -36,38 +33,19 @@ def get_data(data_len=5000, ow=False):
         outputs = np.array(outputs)
 
      #prepare data for neural network
-    inputs_formatted = inputs / 255.0 #divide image data by 255, so that the neural nets gets all data between 0 and 1
-    outputs_formatted = outputs / 255.0
-    print(len(inputs_formatted[0]))
-    inputs_train, inputs_test, outputs_train, outputs_test = train_test_split(inputs_formatted, outputs_formatted, test_size=0.3) #split data between testing and training data
+    inputs = inputs / 255.0 #divide image data by 255, so that the neural nets gets all data between 0 and 1
+    outputs = outputs / 255.0
+
+
+    #convert data to tf dataset
+    train_dataset = Dataset.from_tensor_slices((outputs, inputs))
 
     #return data
-    return (inputs_train, inputs_test, outputs_train, outputs_test)
+    return train_dataset
 
-def get_images(url, delay=1):
-    
-    image = Image.open(io.BytesIO(requests.get(url).content)).convert("RGB")
-    input_imgs = []
-    output_imgs = []
-    
-    width, height = image.size
-    add = 0
 
-    for x in range(0, width - 128, 128):
-        for y in range(0, height - 128, 128):
-            output_img = image.crop((x, y, x + 128, y + 128))
-            input_img = output_img.resize((64, 64))
-            output_imgs.append(keras.utils.img_to_array(output_img))
-            input_imgs.append(keras.utils.img_to_array(input_img))
-            add += 1
-
-    sleep(delay)
-    return add, input_imgs, output_imgs
-
-def scroll(driver):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-def scrape_images(data_len=5000, filename=f"{filedir}/dataset/processed_",thumbnail_class="Q4LuWd", image_class="n3VNCb", pages=["https://www.google.com/search?q=popular+photo&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjo29zFtd79AhXWi_0HHSZrCN4Q_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9", "https://www.google.com/search?q=faces&sxsrf=APwXEddEcQzRXvB_9zsVepWQnQZOpDw0Ig:1680807930842&source=lnms&tbm=isch&sa=X&ved=2ahUKEwj63py9-ZX-AhVTg_0HHXo3Bb0Q_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9", "https://www.google.com/search?q=landscape&tbm=isch&ved=2ahUKEwj2qNq--ZX-AhVRricCHWu2AFQQ2-cCegQIABAA&oq=landscape&gs_lcp=CgNpbWcQAzIHCAAQigUQQzIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDoECCMQJzoHCCMQ6gIQJ1CEBVj0G2DmHmgBcAB4AoABf4gBvAiSAQQxMy4xmAEAoAEBqgELZ3dzLXdpei1pbWewAQrAAQE&sclient=img&ei=_RcvZLa2OdHcnsEP6-yCoAU&bih=1518&biw=2844", "https://www.google.com/search?q=city&tbm=isch&ved=2ahUKEwiL_-vI-ZX-AhXRnycCHQ9rAnAQ2-cCegQIABAA&oq=city&gs_lcp=CgNpbWcQAzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIFCAAQgAQyBwgAEIoFEEMyBQgAEIAEMgcIABCKBRBDOgQIIxAnUOANWL0TYM8VaABwAHgAgAFQiAHbApIBATWYAQCgAQGqAQtnd3Mtd2l6LWltZ8ABAQ&sclient=img&ei=ExgvZMupDNG_nsEPj9aJgAc&bih=1518&biw=2844", "https://www.google.com/search?q=art&sxsrf=APwXEdcNpmhHDCtZKL0buT2kMV5KK1kkHQ:1680807999073&source=lnms&tbm=isch&sa=X&ved=2ahUKEwimquHd-ZX-AhVp_rsIHWVuDiYQ_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9"]): #search_tag is the class name in html
+#class names can be different, in that case check what class names google images has using the html inspector and update the variable
+def scrape_images(data_len=5000, filename=f"{filedir}/dataset/processed_", thumbnail_class="Q4LuWd", image_class="iPVvYb", pages=["https://www.google.com/search?q=popular+photo&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjo29zFtd79AhXWi_0HHSZrCN4Q_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9", "https://www.google.com/search?q=faces&sxsrf=APwXEddEcQzRXvB_9zsVepWQnQZOpDw0Ig:1680807930842&source=lnms&tbm=isch&sa=X&ved=2ahUKEwj63py9-ZX-AhVTg_0HHXo3Bb0Q_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9", "https://www.google.com/search?q=landscape&tbm=isch&ved=2ahUKEwj2qNq--ZX-AhVRricCHWu2AFQQ2-cCegQIABAA&oq=landscape&gs_lcp=CgNpbWcQAzIHCAAQigUQQzIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDoECCMQJzoHCCMQ6gIQJ1CEBVj0G2DmHmgBcAB4AoABf4gBvAiSAQQxMy4xmAEAoAEBqgELZ3dzLXdpei1pbWewAQrAAQE&sclient=img&ei=_RcvZLa2OdHcnsEP6-yCoAU&bih=1518&biw=2844", "https://www.google.com/search?q=city&tbm=isch&ved=2ahUKEwiL_-vI-ZX-AhXRnycCHQ9rAnAQ2-cCegQIABAA&oq=city&gs_lcp=CgNpbWcQAzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIFCAAQgAQyBwgAEIoFEEMyBQgAEIAEMgcIABCKBRBDOgQIIxAnUOANWL0TYM8VaABwAHgAgAFQiAHbApIBATWYAQCgAQGqAQtnd3Mtd2l6LWltZ8ABAQ&sclient=img&ei=ExgvZMupDNG_nsEPj9aJgAc&bih=1518&biw=2844", "https://www.google.com/search?q=art&sxsrf=APwXEdcNpmhHDCtZKL0buT2kMV5KK1kkHQ:1680807999073&source=lnms&tbm=isch&sa=X&ved=2ahUKEwimquHd-ZX-AhVp_rsIHWVuDiYQ_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9"]): #search_tag is the class name in html
     
     #init driver
     PATH = "C:\\Users\\filip\\OneDrive\\Desktop\\Other\\chromdriver.exe"
@@ -139,17 +117,44 @@ def scrape_images(data_len=5000, filename=f"{filedir}/dataset/processed_",thumbn
                 print(e)
                 continue
 
-        try:
-            npaa_input.append(np.array(inputs))
-            npaa_output.append(np.array(outputs))
-            inputs = []
-            outputs = []
-        except Exception as e:
-            print(f"failed to upload data: {e}")
+            #if there is already more then 100 pieces of data, save files to save RAM
+            if len(inputs) >= 1000:
+                try:
+                    npaa_input.append(np.array(inputs))
+                    npaa_output.append(np.array(outputs))
+                    print("\n\nappended to npy files\n\n")
+                    inputs = []
+                    outputs = []
+                except Exception as e:
+                    print(f"failed to upload data: {e}")
             
-        
+    npaa_input.append(np.array(inputs))
+    npaa_output.append(np.array(outputs))
     driver.quit()
     return np.load(f"{filedir}/dataset/processed_input_data.npy"), np.load(f"{filedir}/dataset/processed_output_data.npy")
 
+def get_images(url, delay=1):
+    
+    image = Image.open(io.BytesIO(requests.get(url).content)).convert("RGB")
+    input_imgs = []
+    output_imgs = []
+    
+    width, height = image.size
+    add = 0
+
+    for x in range(0, width - 128, 128):
+        for y in range(0, height - 128, 128):
+            output_img = image.crop((x, y, x + 128, y + 128))
+            input_img = output_img.resize((64, 64))
+            output_imgs.append(keras.utils.img_to_array(output_img))
+            input_imgs.append(keras.utils.img_to_array(input_img))
+            add += 1
+
+    sleep(delay)
+    return add, input_imgs, output_imgs
+
+def scroll(driver):
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
 if __name__ == "__main__":
-    get_data(5000, ow=True)
+    get_data(10000, ow=True)

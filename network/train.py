@@ -1,150 +1,78 @@
 import os, sys, pickle, threading
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from datetime import datetime
 import model, init_dataset
 
 #USE GUIDE:
-#python3.8 network/train.py [optional: MODEL_NUM] [optional: MAXLEN] [optional: GPU_NUM] [optional: "m" for multiple gpu use]
-#GPU_NUM will be taken as number of gpus with "m" paramater
+#python3.8 network/train.py [optional: MAXLEN] [optional: GPU_NUM] [optional: "ow" for overwriting dataset]
 
 
-#select gpu
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0" #first gpu
-#os.environ["CUDA_VISIBLE_DEVICES"] = "1" #second gpu
-
-
-#create a filedir vat and get models
-filedir = os.getcwd() + "/network/"
-models = model.get_models()
+#create a filedir var and get model
+filedir = os.getcwd()
+Model = model.get_model()
 
 
 #create vars for number of epochs and batch size
-EPOCHS = 300
-BATCH_SIZE = 32
-
+EPOCHS = 100
+BATCH_SIZE = 256
 
 #train, save model and history
-def train(Model, input_train, input_test, output_train, output_test, filename):
+def train(Model, filename, gpu=0, data_len=10000, ow=False):
 
-    #create checkpointer and early stop, then add them to the callback list
-    Checkpoint = ModelCheckpoint(filename, monitor="val_loss", verbose=1,save_best_only=True, save_weights_only=False, mode="auto", save_freq="epoch")
-    Early_stop = EarlyStopping(patience=150, monitor="val_loss",restore_best_weights=True),
-    callbacks = [Checkpoint, Early_stop]
+    #select gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+
+    #get dataset
+    train_dataset = init_dataset.get_data(data_len, ow)
+
 
 
     #train model and save training history
     start = datetime.now()
-    History = Model.fit(input_train, output_train, batch_size=BATCH_SIZE, validation_data=(input_test, output_test), epochs=EPOCHS, callbacks=[callbacks])
+    History = Model.fit(train_dataset, epochs=EPOCHS, batch_size=BATCH_SIZE)
     time = datetime.now() - start
     history = History.history
     history.update({"time" : time})
     pickle.dump(history, open(f"{filename[:3]}_history.pickle", "wb"), pickle.HIGHEST_PROTOCOL)
 
     #save complete model
-    Model.save(filename)
+    Model.generator.save(filename)
+    Model.discriminator.save(filename[:3] + "_discriminator.h5")
 
-
+#function to get paramater from sys.argv
 def get_paramaters():
     #default parameters
-    MAXLEN = 50000
-    MULTIPLE_GPUS = False
-    GPUNUM = "-1"
-    MODEL_NUM = -1
+    DATA_LEN = 10000
+    GPUNUM = "0"
+    OW = False
 
-
-    #try to get a model num paramater
+    #try to get the paramaters
+    temp = 1
     try:
-        #get model num
-        temp = 1
-        MODEL_NUM = int(sys.argv[temp])
+        DATA_LEN = int(sys.argv[temp])
         temp += 1
+    except (IndexError, ValueError):
+        pass
 
+    try:
+        GPUNUM = sys.argv[temp]
+    except IndexError:
+        pass
 
-        #try to get other paramaters
-        
-        try:
-            MAXLEN = int(sys.argv[temp])
-            temp += 1
-        except IndexError or ValueError:
-            pass
+    if "ow" in sys.argv:
+        OW = True
+
     
-        try:
-            GPUNUM = sys.argv[temp]
-        except IndexError:
-            pass
 
-        #select gpu
-        os.environ["CUDA_VISIBLE_DEVICES"] = GPUNUM
-
-    except Exception:
-
-        #try to get other paramaters
-        try:
-            MAXLEN = int(sys.argv[temp])
-            temp += 1
-        except IndexError or ValueError:
-            pass
-        try:
-            GPUNUM = sys.argv[temp]
-            temp += 1
-        except IndexError:
-            pass
-        try:
-            if sys.argv[temp] == "m":
-                MULTIPLE_GPUS = True
-        except IndexError:
-            pass
-
-    return MODEL_NUM, MAXLEN, MULTIPLE_GPUS, GPUNUM
-
-#thread for training
-def thread(models, gpu, data_len):
-
-            #select gpu
-            os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-
-
-            #go through all the models and train them
-            for i, model_data in enumerate(models):
-                
-                #get model data
-                print(model_data)
-                Model = model_data
-                input_train, input_test, output_train, output_test = init_dataset.get_data(data_len=data_len, ow=True)
-
-                #train, save, and evaluate model
-                train(Model, input_train, input_test, output_train, output_test, f"model{i}")
-                Model.save(f"{filedir}/model{i}.h5")
-                Model.evaluate(input_test,output_test)
+    return DATA_LEN, GPUNUM, OW
 
 #if program is ran
 if __name__ == "__main__":
-    
-        MODEL_NUM, DATA_LEN, MULTIPLE_GPUS, GPUNUM = get_paramaters()
 
-        #train everything by default
-        if MODEL_NUM == -1: 
-             #if there's only one gpu
-            if not(MULTIPLE_GPUS):
-                thread(models, GPUNUM, DATA_LEN)
-            else:
-                chunk = int(len(models)) // GPUNUM
-                for chunknum, i in enumerate(range(0, len(models), chunk)):
-                    #create and start a thread
-                    x = threading.Thread(target=thread, args=[models[i:i+chunk], str(chunknum), DATA_LEN])
-                    x.start()
-                #last thread if models is not divisible by GPUNUM
-                if int(len(models)) % GPUNUM > 0:
-                    thread(models[i:])
+        DATA_LEN, GPUNUM, OW = get_paramaters()
 
-        else:
-            #get model data
-            Model = models[MODEL_NUM]
-            
-            #train model
-            thread([Model], "-1", DATA_LEN)        
+        train(Model, f"{filedir}/model/model.h5", GPUNUM, DATA_LEN, OW)    
         
 
         
