@@ -62,7 +62,7 @@ if __name__ == "__main__":
     filedir = os.getcwd()
     img = Image.open(sys.argv[1]).convert("RGB")
     w, h = img.size
-    Model = keras.models.load_model(f"{filedir}/model/model_1.h5")
+    Model = keras.models.load_model(f"{filedir}/model/model1.h5")
 
     tiles = get_tiles(img)
     tiles = upscale_tiles(tiles)

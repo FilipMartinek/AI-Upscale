@@ -102,12 +102,12 @@ class GAN(Model):
     def gen_loss(self, disc_out_gen, data_in, gen_out):
         loss = self.loss(tf.zeros_like(disc_out_gen), disc_out_gen)
         
-        # data_in_slice = data_in[:, 0, 0, :]
-        # gen_out_slice = gen_out[:, 0, 0, :]
-        # # gen_out_slice = tf.keras.layers.Average()([gen_out[:, 0:128:2, 0:128:2, :], gen_out[:, 1:128:2, 0:128:2, :], gen_out[:, 0:128:2, 1:128:2, :], gen_out[:, 1:128:2, 1:128:2, :]]) #downscale upscaled image
-        # # print(tf.math.subtract(gen_out_slice, data_in_slice).numpy())
-        # loss2 = self.loss(data_in_slice, gen_out_slice) # for color accuracy (checks pixel colors for corner pixels)
-        # loss = tf.stack([loss, loss2], axis=0)
+        data_in_slice = data_in[:, 0, 0, :]
+        gen_out_slice = gen_out[:, 0, 0, :]
+        # gen_out_slice = tf.keras.layers.Average()([gen_out[:, 0:128:2, 0:128:2, :], gen_out[:, 1:128:2, 0:128:2, :], gen_out[:, 0:128:2, 1:128:2, :], gen_out[:, 1:128:2, 1:128:2, :]]) #downscale upscaled image
+        # print(tf.math.subtract(gen_out_slice, data_in_slice).numpy())
+        loss2 = self.loss(data_in_slice, gen_out_slice) # for color accuracy (checks pixel colors for corner pixels)
+        loss = tf.stack([loss, loss2], axis=0)
         return loss
     
     def disc_loss(self, real_out, gen_out):
