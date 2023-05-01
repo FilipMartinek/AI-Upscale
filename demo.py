@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 from tensorflow import keras
 import os
+import sys
 
 OVERLAP = 2 #overlap, so that the AI has a bit of context when generating the tiles for an image (can't be to high, or individual tiles will be visible)
 
@@ -32,7 +33,7 @@ def upscale_tiles(tiles):
         upscaled_tiles.append([])
         for tile in tiles[i]:
             pred = Model.predict(np.array([keras.utils.img_to_array(tile) / 255.0]))
-            upscaled_tiles[i].append(Image.fromarray(np.uint8(pred[0] * 255)))  
+            upscaled_tiles[i].append(Image.fromarray(np.uint8(pred[0] * 255 * 5)))  
     return upscaled_tiles       
 
 def connect_tiles(tiles_upscaled, w, h):
@@ -59,7 +60,7 @@ def add_padding(img, dims=(64, 64)):
 
 if __name__ == "__main__":
     filedir = os.getcwd()
-    img = Image.open("demo_img3.png").convert("RGB")
+    img = Image.open(sys.argv[1]).convert("RGB")
     w, h = img.size
     Model = keras.models.load_model(f"{filedir}/model/model_1.h5")
 

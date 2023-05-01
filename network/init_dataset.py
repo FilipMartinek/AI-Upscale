@@ -157,5 +157,9 @@ def get_images(url, delay=1):
 def scroll(driver):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
+def test_get_imgs():
+    print(get_images("https://images.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png", delay=0))
+    print(get_images("https://fastly.4sqi.net/img/user/32x32/4UFEZ5POXMAZVHGU.jpg", delay=0))
+
 if __name__ == "__main__":
     get_data(10000, ow=True)

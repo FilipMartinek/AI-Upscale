@@ -14,7 +14,7 @@ Model = model.get_model()
 
 
 #create vars for number of epochs and batch size
-EPOCHS = 30
+EPOCHS = 100
 BATCH_SIZE = 256
 
 #train, save model and history
