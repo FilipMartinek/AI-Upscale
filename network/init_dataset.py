@@ -48,7 +48,7 @@ def get_data(data_len=5000, ow=False):
 def scrape_images(data_len=5000, filename=f"{filedir}/dataset/processed_", thumbnail_class="Q4LuWd", image_class="iPVvYb", pages=["https://www.google.com/search?q=popular+photo&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjo29zFtd79AhXWi_0HHSZrCN4Q_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9", "https://www.google.com/search?q=faces&sxsrf=APwXEddEcQzRXvB_9zsVepWQnQZOpDw0Ig:1680807930842&source=lnms&tbm=isch&sa=X&ved=2ahUKEwj63py9-ZX-AhVTg_0HHXo3Bb0Q_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9", "https://www.google.com/search?q=landscape&tbm=isch&ved=2ahUKEwj2qNq--ZX-AhVRricCHWu2AFQQ2-cCegQIABAA&oq=landscape&gs_lcp=CgNpbWcQAzIHCAAQigUQQzIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDoECCMQJzoHCCMQ6gIQJ1CEBVj0G2DmHmgBcAB4AoABf4gBvAiSAQQxMy4xmAEAoAEBqgELZ3dzLXdpei1pbWewAQrAAQE&sclient=img&ei=_RcvZLa2OdHcnsEP6-yCoAU&bih=1518&biw=2844", "https://www.google.com/search?q=city&tbm=isch&ved=2ahUKEwiL_-vI-ZX-AhXRnycCHQ9rAnAQ2-cCegQIABAA&oq=city&gs_lcp=CgNpbWcQAzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIHCAAQigUQQzIFCAAQgAQyBwgAEIoFEEMyBQgAEIAEMgcIABCKBRBDOgQIIxAnUOANWL0TYM8VaABwAHgAgAFQiAHbApIBATWYAQCgAQGqAQtnd3Mtd2l6LWltZ8ABAQ&sclient=img&ei=ExgvZMupDNG_nsEPj9aJgAc&bih=1518&biw=2844", "https://www.google.com/search?q=art&sxsrf=APwXEdcNpmhHDCtZKL0buT2kMV5KK1kkHQ:1680807999073&source=lnms&tbm=isch&sa=X&ved=2ahUKEwimquHd-ZX-AhVp_rsIHWVuDiYQ_AUoAXoECAIQAw&biw=2844&bih=1518&dpr=0.9"]): #search_tag is the class name in html
     
     #init driver
-    PATH = "C:\\Users\\filip\\OneDrive\\Desktop\\Other\\chromdriver.exe"
+    PATH = "C:...\\chromdriver.exe" #has to be setup
     driver = webdriver.Chrome(PATH)
     driver.get(pages[0])
     sleep(.5)
@@ -159,7 +159,7 @@ def scroll(driver):
 
 def test_get_imgs():
     print(get_images("https://images.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png", delay=0))
-    print(get_images("https://fastly.4sqi.net/img/user/32x32/4UFEZ5POXMAZVHGU.jpg", delay=0))
+    print(get_images("https://fastly.4sqi.net/img/user/32x32/4UFEZ5POXMAZVHGU.jpg", delay=100))
 
 if __name__ == "__main__":
     get_data(10000, ow=True)

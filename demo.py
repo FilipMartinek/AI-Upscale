@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageChops
 from tensorflow import keras
 import os
 import sys
@@ -62,14 +62,10 @@ if __name__ == "__main__":
     filedir = os.getcwd()
     img = Image.open(sys.argv[1]).convert("RGB")
     w, h = img.size
-    Model = keras.models.load_model(f"{filedir}/model/model.h5")
+    Model = keras.models.load_model(f"{filedir}/model/model_1.h5")
 
     tiles = get_tiles(img)
     tiles = upscale_tiles(tiles)
     output_img = connect_tiles(tiles, 2 * w, 2 * h)
-    # matrix = ( 0, 1, 0, 0,
-    #            0, 0, 1, 0,
-    #            1, 0, 0, 0)
-    # output_img = output_img.convert("RGB", matrix)
     plt.imshow(output_img)
     plt.show()
