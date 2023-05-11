@@ -122,24 +122,24 @@ class GAN(Model):
         data_in = tf.reshape(data_in, (-1, 64, 64, 3))     #reshape to fit neural net even when batch size is 1 (dims would be missing first dimension)
         real_out = tf.reshape(real_out, (-1, 128, 128, 3)) #
 
-        #get generator and discriminator outputs
-        fake_out = self.generator(data_in, training=True)
-
         #get loss
         with tf.GradientTape() as disc_tape, tf.GradientTape() as gen_tape:
 
             #train discriminator and generator, and calculate losses
-
-            #discriminator
-            disc_out_real = self.discriminator(real_out, training=True)
-            disc_out_fake = self.discriminator(fake_out, training=True)
             
-            discriminator_loss = self.disc_loss(disc_out_real, disc_out_fake)
-
             #generator
             gen_pred = self.generator(data_in, training=True)
             disc_pred = self.discriminator(gen_pred, training=False)
+            
             generator_loss = self.gen_loss(disc_pred, data_in, real_out)
+
+            #discriminator
+            disc_out_real = self.discriminator(real_out, training=True)
+            disc_out_fake = self.discriminator(gen_pred, training=True)
+            
+            discriminator_loss = self.disc_loss(disc_out_real, disc_out_fake)
+
+ 
         
         #calculate and apply gradient to network parameters
         disc_trainable_vars = self.discriminator.trainable_variables
