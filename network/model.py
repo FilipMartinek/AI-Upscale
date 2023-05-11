@@ -122,7 +122,7 @@ class GAN(Model):
         data_in = tf.reshape(data_in, (-1, 64, 64, 3))     #reshape to fit neural net even when batch size is 1 (dims would be missing first dimension)
         real_out = tf.reshape(real_out, (-1, 128, 128, 3)) #
 
-        #get loss
+        #train and get losses
         with tf.GradientTape() as disc_tape, tf.GradientTape() as gen_tape:
 
             #train discriminator and generator, and calculate losses
